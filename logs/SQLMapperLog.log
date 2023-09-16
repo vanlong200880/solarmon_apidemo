@@ -1,0 +1,5837 @@
+[2023-06-24T23:07:14.616] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2023-06-24T23:07:14.616] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2023-06-24T23:07:14.660] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2023-06-24T23:07:14.660] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:14.661] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2023-06-24T23:07:14.661] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  installed_power_client: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  menu_order: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:14.674] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.674] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.684] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.684] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.696] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 381
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.696] [INFO] SQLMapperLog - param: { id_device: 381, id_language: 2 }
+[2023-06-24T23:07:14.697] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.697] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.706] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.706] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.712] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 339
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.712] [INFO] SQLMapperLog - param: { id_device: 339, id_language: 2 }
+[2023-06-24T23:07:14.715] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.715] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.724] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 338
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.724] [INFO] SQLMapperLog - param: { id_device: 338, id_language: 2 }
+[2023-06-24T23:07:14.725] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 14
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.726] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 14,
+  name: 'Gateway Monitoring',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.734] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 337
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.734] [INFO] SQLMapperLog - param: { id_device: 337, id_language: 2 }
+[2023-06-24T23:07:14.735] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 15
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.735] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 15,
+  name: 'Power Solar Group 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.743] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 336
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.743] [INFO] SQLMapperLog - param: { id_device: 336, id_language: 2 }
+[2023-06-24T23:07:14.744] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 16
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.745] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 16,
+  name: 'Power Solar Group 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.753] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 17
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:14.753] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 17,
+  name: 'Power Solar Group 3',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:14.755] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 335
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.755] [INFO] SQLMapperLog - param: { id_device: 335, id_language: 2 }
+[2023-06-24T23:07:14.765] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 309
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.765] [INFO] SQLMapperLog - param: { id_device: 309, id_language: 2 }
+[2023-06-24T23:07:14.778] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 62
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.779] [INFO] SQLMapperLog - param: { id_device: 62, id_language: 2 }
+[2023-06-24T23:07:14.789] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 59
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.789] [INFO] SQLMapperLog - param: { id_device: 59, id_language: 2 }
+[2023-06-24T23:07:14.798] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 42
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.798] [INFO] SQLMapperLog - param: { id_device: 42, id_language: 2 }
+[2023-06-24T23:07:14.807] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 41
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.807] [INFO] SQLMapperLog - param: { id_device: 41, id_language: 2 }
+[2023-06-24T23:07:14.817] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 16
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.817] [INFO] SQLMapperLog - param: { id_device: 16, id_language: 2 }
+[2023-06-24T23:07:14.828] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 15
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:14.828] [INFO] SQLMapperLog - param: { id_device: 15, id_language: 2 }
+[2023-06-24T23:07:14.843] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2023-06-24T23:07:14.843] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:48.365] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2023-06-24T23:07:48.365] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:48.376] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2023-06-24T23:07:48.376] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  installed_power_client: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  menu_order: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2023-06-24T23:07:48.381] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2023-06-24T23:07:48.381] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:48.387] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.387] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.395] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.395] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.403] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.403] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.407] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 381
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.407] [INFO] SQLMapperLog - param: { id_device: 381, id_language: 2 }
+[2023-06-24T23:07:48.412] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.412] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.416] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 339
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.416] [INFO] SQLMapperLog - param: { id_device: 339, id_language: 2 }
+[2023-06-24T23:07:48.418] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.418] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.424] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 338
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.424] [INFO] SQLMapperLog - param: { id_device: 338, id_language: 2 }
+[2023-06-24T23:07:48.425] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 14
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.425] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 14,
+  name: 'Gateway Monitoring',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.431] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 337
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.432] [INFO] SQLMapperLog - param: { id_device: 337, id_language: 2 }
+[2023-06-24T23:07:48.432] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 15
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.432] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 15,
+  name: 'Power Solar Group 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.438] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 336
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.438] [INFO] SQLMapperLog - param: { id_device: 336, id_language: 2 }
+[2023-06-24T23:07:48.439] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 16
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.439] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 16,
+  name: 'Power Solar Group 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.445] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 335
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.445] [INFO] SQLMapperLog - param: { id_device: 335, id_language: 2 }
+[2023-06-24T23:07:48.447] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 17
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:48.447] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 17,
+  name: 'Power Solar Group 3',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:48.459] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 309
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.459] [INFO] SQLMapperLog - param: { id_device: 309, id_language: 2 }
+[2023-06-24T23:07:48.466] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 62
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.466] [INFO] SQLMapperLog - param: { id_device: 62, id_language: 2 }
+[2023-06-24T23:07:48.474] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 59
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.475] [INFO] SQLMapperLog - param: { id_device: 59, id_language: 2 }
+[2023-06-24T23:07:48.482] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 42
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.483] [INFO] SQLMapperLog - param: { id_device: 42, id_language: 2 }
+[2023-06-24T23:07:48.491] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 41
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.491] [INFO] SQLMapperLog - param: { id_device: 41, id_language: 2 }
+[2023-06-24T23:07:48.500] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 16
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.501] [INFO] SQLMapperLog - param: { id_device: 16, id_language: 2 }
+[2023-06-24T23:07:48.511] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 15
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:48.511] [INFO] SQLMapperLog - param: { id_device: 15, id_language: 2 }
+[2023-06-24T23:07:48.523] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2023-06-24T23:07:48.523] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:56.491] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2023-06-24T23:07:56.492] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2023-06-24T23:07:56.511] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2023-06-24T23:07:56.512] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  installed_power_client: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  menu_order: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:56.517] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2023-06-24T23:07:56.517] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:07:56.518] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.518] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.528] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.528] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.536] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.536] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.544] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.544] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.555] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.556] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.563] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 14
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.564] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 14,
+  name: 'Gateway Monitoring',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.571] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 15
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.572] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 15,
+  name: 'Power Solar Group 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.579] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 16
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.579] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 16,
+  name: 'Power Solar Group 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.586] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 17
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:07:56.586] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 17,
+  name: 'Power Solar Group 3',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:07:56.612] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 381
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.612] [INFO] SQLMapperLog - param: { id_device: 381, id_language: 2 }
+[2023-06-24T23:07:56.620] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 339
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.620] [INFO] SQLMapperLog - param: { id_device: 339, id_language: 2 }
+[2023-06-24T23:07:56.628] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 338
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.628] [INFO] SQLMapperLog - param: { id_device: 338, id_language: 2 }
+[2023-06-24T23:07:56.635] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 337
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.635] [INFO] SQLMapperLog - param: { id_device: 337, id_language: 2 }
+[2023-06-24T23:07:56.642] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 336
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.642] [INFO] SQLMapperLog - param: { id_device: 336, id_language: 2 }
+[2023-06-24T23:07:56.649] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 335
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.649] [INFO] SQLMapperLog - param: { id_device: 335, id_language: 2 }
+[2023-06-24T23:07:56.657] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 309
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.657] [INFO] SQLMapperLog - param: { id_device: 309, id_language: 2 }
+[2023-06-24T23:07:56.665] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 62
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.665] [INFO] SQLMapperLog - param: { id_device: 62, id_language: 2 }
+[2023-06-24T23:07:56.672] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 59
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.672] [INFO] SQLMapperLog - param: { id_device: 59, id_language: 2 }
+[2023-06-24T23:07:56.679] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 42
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.679] [INFO] SQLMapperLog - param: { id_device: 42, id_language: 2 }
+[2023-06-24T23:07:56.686] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 41
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.686] [INFO] SQLMapperLog - param: { id_device: 41, id_language: 2 }
+[2023-06-24T23:07:56.693] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 16
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.694] [INFO] SQLMapperLog - param: { id_device: 16, id_language: 2 }
+[2023-06-24T23:07:56.700] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 15
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:07:56.700] [INFO] SQLMapperLog - param: { id_device: 15, id_language: 2 }
+[2023-06-24T23:07:56.717] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2023-06-24T23:07:56.717] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:11:36.662] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 381
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.663] [INFO] SQLMapperLog - param: {
+  id: 381,
+  id_device: 'Vinasino-30690562',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'ĐẠI VINH THĂNG',
+  model: 'VSE3T5',
+  serial_number: '30690562',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 1.316,
+  lifetime: 298310,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.673] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 339
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.674] [INFO] SQLMapperLog - param: {
+  id: 339,
+  id_device: 'Vinasino-30690203',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'TỔNG KHÁCH HÀNG',
+  model: 'VSE3T-5',
+  serial_number: '30690203',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 1.0815999999999768,
+  last_month: 30.009599999999978,
+  lifetime: 821094.4,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.682] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 338
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.682] [INFO] SQLMapperLog - param: {
+  id: 338,
+  id_device: 'Vinasino-30690607',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'MYUNG SUNG',
+  model: 'VSE3T-5',
+  serial_number: '30690607',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.002,
+  last_month: 4.104,
+  lifetime: 55086,
+  last_updated: '15/05/2023 07:50',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.692] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 337
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.692] [INFO] SQLMapperLog - param: {
+  id: 337,
+  id_device: 'Vinasino-30690661',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'HANSOL',
+  model: 'VSE3T-5',
+  serial_number: '30690661',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 7.128,
+  lifetime: 158175.6,
+  last_updated: '15/05/2023 07:40',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.701] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 336
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.702] [INFO] SQLMapperLog - param: {
+  id: 336,
+  id_device: 'Vinasino-30690707',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'NINH KHÁNH',
+  model: 'VSE3T-5',
+  serial_number: '30690707',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.08580000000000292,
+  last_month: 2.169,
+  lifetime: 61896,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.710] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 335
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.710] [INFO] SQLMapperLog - param: {
+  id: 335,
+  id_device: 'Vinasino-30690730',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'CÁT THÁI',
+  model: 'VSE3T-5',
+  serial_number: '30690730',
+  manufacturer: 'Vinasino',
+  installed_at: null,
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 15.004799999999989,
+  lifetime: 356169.6,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.722] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 309
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.722] [INFO] SQLMapperLog - param: {
+  id: 309,
+  id_device: 'ABB-114602-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-03',
+  model: 'PVS100',
+  serial_number: '114602-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '20/10/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 662.02,
+  last_month: 16096,
+  lifetime: 272735020,
+  last_updated: '14/05/2023 17:45',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.731] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 16
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.731] [INFO] SQLMapperLog - param: {
+  id: 16,
+  id_device: 'ABB-121962-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-02',
+  model: 'PVS100',
+  serial_number: '121962-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 16834.98,
+  lifetime: 325492000,
+  last_updated: '15/05/2023 07:25',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:36.742] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 15
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:36.742] [INFO] SQLMapperLog - param: {
+  id: 15,
+  id_device: 'ABB-121961-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-01',
+  model: 'PVS100',
+  serial_number: '121961-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 661.98,
+  last_month: 16195,
+  lifetime: 311817980,
+  last_updated: '14/05/2023 17:50',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:11:40.714] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 381
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.715] [INFO] SQLMapperLog - param: {
+  id: 381,
+  id_device: 'Vinasino-30690562',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'ĐẠI VINH THĂNG',
+  model: 'VSE3T5',
+  serial_number: '30690562',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.028,
+  last_month: 1.316,
+  lifetime: 298310,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.727] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 339
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.727] [INFO] SQLMapperLog - param: {
+  id: 339,
+  id_device: 'Vinasino-30690203',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'TỔNG KHÁCH HÀNG',
+  model: 'VSE3T-5',
+  serial_number: '30690203',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 1.024,
+  last_month: 30.009599999999978,
+  lifetime: 821094.4,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.740] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 338
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.741] [INFO] SQLMapperLog - param: {
+  id: 338,
+  id_device: 'Vinasino-30690607',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'MYUNG SUNG',
+  model: 'VSE3T-5',
+  serial_number: '30690607',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.098,
+  last_month: 4.104,
+  lifetime: 55086,
+  last_updated: '15/05/2023 07:50',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.751] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 337
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.751] [INFO] SQLMapperLog - param: {
+  id: 337,
+  id_device: 'Vinasino-30690661',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'HANSOL',
+  model: 'VSE3T-5',
+  serial_number: '30690661',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.254,
+  last_month: 7.128,
+  lifetime: 158175.6,
+  last_updated: '15/05/2023 07:40',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.759] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 336
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.759] [INFO] SQLMapperLog - param: {
+  id: 336,
+  id_device: 'Vinasino-30690707',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'NINH KHÁNH',
+  model: 'VSE3T-5',
+  serial_number: '30690707',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.072,
+  last_month: 2.169,
+  lifetime: 61896,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.766] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 335
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.767] [INFO] SQLMapperLog - param: {
+  id: 335,
+  id_device: 'Vinasino-30690730',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'CÁT THÁI',
+  model: 'VSE3T-5',
+  serial_number: '30690730',
+  manufacturer: 'Vinasino',
+  installed_at: null,
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.6064000000000233,
+  last_month: 15.004799999999989,
+  lifetime: 356169.6,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.773] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 309
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.773] [INFO] SQLMapperLog - param: {
+  id: 309,
+  id_device: 'ABB-114602-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-03',
+  model: 'PVS100',
+  serial_number: '114602-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '20/10/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 545.04,
+  last_month: 16096,
+  lifetime: 272735020,
+  last_updated: '14/05/2023 17:45',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.780] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 16
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.781] [INFO] SQLMapperLog - param: {
+  id: 16,
+  id_device: 'ABB-121962-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-02',
+  model: 'PVS100',
+  serial_number: '121962-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 541.96,
+  last_month: 16834.98,
+  lifetime: 325492000,
+  last_updated: '15/05/2023 07:25',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:11:40.787] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 15
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-24 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:11:40.787] [INFO] SQLMapperLog - param: {
+  id: 15,
+  id_device: 'ABB-121961-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-01',
+  model: 'PVS100',
+  serial_number: '121961-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 544.98,
+  last_month: 16195,
+  lifetime: 311817980,
+  last_updated: '14/05/2023 17:50',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-24 00:00:00'
+}
+[2023-06-24T23:17:16.125] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2023-06-24T23:17:16.125] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:17:16.139] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2023-06-24T23:17:16.139] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  installed_power_client: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  menu_order: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2023-06-24T23:17:16.151] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2023-06-24T23:17:16.151] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:17:16.155] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.155] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.162] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.162] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.170] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.170] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.178] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.178] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.186] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.186] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.194] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 14
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.194] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 14,
+  name: 'Gateway Monitoring',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.205] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 15
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.205] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 15,
+  name: 'Power Solar Group 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.258] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 381
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.259] [INFO] SQLMapperLog - param: { id_device: 381, id_language: 2 }
+[2023-06-24T23:17:16.267] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 339
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.267] [INFO] SQLMapperLog - param: { id_device: 339, id_language: 2 }
+[2023-06-24T23:17:16.275] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 338
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.275] [INFO] SQLMapperLog - param: { id_device: 338, id_language: 2 }
+[2023-06-24T23:17:16.283] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 337
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.283] [INFO] SQLMapperLog - param: { id_device: 337, id_language: 2 }
+[2023-06-24T23:17:16.293] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 336
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.293] [INFO] SQLMapperLog - param: { id_device: 336, id_language: 2 }
+[2023-06-24T23:17:16.304] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 335
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.304] [INFO] SQLMapperLog - param: { id_device: 335, id_language: 2 }
+[2023-06-24T23:17:16.312] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 309
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.312] [INFO] SQLMapperLog - param: { id_device: 309, id_language: 2 }
+[2023-06-24T23:17:16.319] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 62
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.319] [INFO] SQLMapperLog - param: { id_device: 62, id_language: 2 }
+[2023-06-24T23:17:16.327] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 59
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.327] [INFO] SQLMapperLog - param: { id_device: 59, id_language: 2 }
+[2023-06-24T23:17:16.336] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 42
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.336] [INFO] SQLMapperLog - param: { id_device: 42, id_language: 2 }
+[2023-06-24T23:17:16.346] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 41
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.346] [INFO] SQLMapperLog - param: { id_device: 41, id_language: 2 }
+[2023-06-24T23:17:16.352] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 16
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.352] [INFO] SQLMapperLog - param: { id_device: 16, id_language: 2 }
+[2023-06-24T23:17:16.360] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 15
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:17:16.360] [INFO] SQLMapperLog - param: { id_device: 15, id_language: 2 }
+[2023-06-24T23:17:16.374] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2023-06-24T23:17:16.374] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:17:16.422] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 16
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.422] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 16,
+  name: 'Power Solar Group 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:16.429] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 17
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:17:16.429] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 17,
+  name: 'Power Solar Group 3',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:17:23.292] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 381
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.293] [INFO] SQLMapperLog - param: {
+  id: 381,
+  id_device: 'Vinasino-30690562',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'ĐẠI VINH THĂNG',
+  model: 'VSE3T5',
+  serial_number: '30690562',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 1.316,
+  lifetime: 298310,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.302] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 339
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.302] [INFO] SQLMapperLog - param: {
+  id: 339,
+  id_device: 'Vinasino-30690203',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'TỔNG KHÁCH HÀNG',
+  model: 'VSE3T-5',
+  serial_number: '30690203',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 1.0815999999999768,
+  last_month: 30.009599999999978,
+  lifetime: 821094.4,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.309] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 338
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.309] [INFO] SQLMapperLog - param: {
+  id: 338,
+  id_device: 'Vinasino-30690607',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'MYUNG SUNG',
+  model: 'VSE3T-5',
+  serial_number: '30690607',
+  manufacturer: 'Vinasino',
+  installed_at: '13/12/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.002,
+  last_month: 4.104,
+  lifetime: 55086,
+  last_updated: '15/05/2023 07:50',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.317] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 337
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.319] [INFO] SQLMapperLog - param: {
+  id: 337,
+  id_device: 'Vinasino-30690661',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'HANSOL',
+  model: 'VSE3T-5',
+  serial_number: '30690661',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 7.128,
+  lifetime: 158175.6,
+  last_updated: '15/05/2023 07:40',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.327] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 336
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.328] [INFO] SQLMapperLog - param: {
+  id: 336,
+  id_device: 'Vinasino-30690707',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'NINH KHÁNH',
+  model: 'VSE3T-5',
+  serial_number: '30690707',
+  manufacturer: 'Vinasino',
+  installed_at: '09/11/2021',
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0.08580000000000292,
+  last_month: 2.169,
+  lifetime: 61896,
+  last_updated: '18/04/2023 18:55',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.335] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_emeter_Vinasino_VSE3T5 dv
+WHERE
+  dv.id_device = 335
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.336] [INFO] SQLMapperLog - param: {
+  id: 335,
+  id_device: 'Vinasino-30690730',
+  id_project: 11,
+  id_device_type: 4,
+  name: 'CÁT THÁI',
+  model: 'VSE3T-5',
+  serial_number: '30690730',
+  manufacturer: 'Vinasino',
+  installed_at: null,
+  status: 1,
+  device_type_name: 'Energy Meter',
+  device_group_name: 'emeter Vinasino VSE3T5',
+  table_name: 'model_emeter_Vinasino_VSE3T5',
+  id_device_group: 29,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 15.004799999999989,
+  lifetime: 356169.6,
+  last_updated: '15/05/2023 05:20',
+  alerts: [],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.345] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 309
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.346] [INFO] SQLMapperLog - param: {
+  id: 309,
+  id_device: 'ABB-114602-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-03',
+  model: 'PVS100',
+  serial_number: '114602-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '20/10/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 662.02,
+  last_month: 16096,
+  lifetime: 272735020,
+  last_updated: '14/05/2023 17:45',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.355] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 16
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.355] [INFO] SQLMapperLog - param: {
+  id: 16,
+  id_device: 'ABB-121962-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-02',
+  model: 'PVS100',
+  serial_number: '121962-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 0,
+  last_month: 16834.98,
+  lifetime: 325492000,
+  last_updated: '15/05/2023 07:25',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:17:23.364] [INFO] SQLMapperLog - [sqlId:MainDevice.getPowerNowByDay] SELECT
+  dv.id_device,
+  (MAX(dv.activeEnergy) - MIN(dv.activeEnergy)) / 1000 AS energyDay
+FROM
+  model_inverter_ABB_PVS100 dv
+WHERE
+  dv.id_device = 15
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2023-06-23 00:00:00', '%Y-%m-%d')
+[2023-06-24T23:17:23.364] [INFO] SQLMapperLog - param: {
+  id: 15,
+  id_device: 'ABB-121961-3Q15-4820',
+  id_project: 11,
+  id_device_type: 1,
+  name: 'E11-ABB-PVS100-1-01',
+  model: 'PVS100',
+  serial_number: '121961-3Q15-4820',
+  manufacturer: 'ABB',
+  installed_at: '09/09/2021',
+  status: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-ABB-PVS100',
+  table_name: 'model_inverter_ABB_PVS100',
+  id_device_group: 18,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  power_now: null,
+  energy_today: 661.98,
+  last_month: 16195,
+  lifetime: 311817980,
+  last_updated: '14/05/2023 17:50',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  current_date: '2023-06-23 00:00:00'
+}
+[2023-06-24T23:19:24.854] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2023-06-24T23:19:24.854] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:19:24.871] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2023-06-24T23:19:24.871] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2023-06-24T23:19:24.872] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2023-06-24T23:19:24.872] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  installed_power_client: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  menu_order: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2023-06-24T23:19:24.883] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.883] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.892] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.892] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.912] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.912] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.925] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.925] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.932] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.932] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.937] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 381
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.937] [INFO] SQLMapperLog - param: { id_device: 381, id_language: 2 }
+[2023-06-24T23:19:24.940] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 14
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.940] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 14,
+  name: 'Gateway Monitoring',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.949] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 339
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.949] [INFO] SQLMapperLog - param: { id_device: 339, id_language: 2 }
+[2023-06-24T23:19:24.949] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 15
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.949] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 15,
+  name: 'Power Solar Group 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.956] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 338
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.956] [INFO] SQLMapperLog - param: { id_device: 338, id_language: 2 }
+[2023-06-24T23:19:24.957] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 16
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.957] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 16,
+  name: 'Power Solar Group 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.967] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 337
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.968] [INFO] SQLMapperLog - param: { id_device: 337, id_language: 2 }
+[2023-06-24T23:19:24.968] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 17
+  AND epm.id_employee = 1
+ORDER BY
+  p.`menu_order` DESC
+[2023-06-24T23:19:24.968] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 17,
+  name: 'Power Solar Group 3',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2023-06-24T23:19:24.975] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 336
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.975] [INFO] SQLMapperLog - param: { id_device: 336, id_language: 2 }
+[2023-06-24T23:19:24.984] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 335
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.984] [INFO] SQLMapperLog - param: { id_device: 335, id_language: 2 }
+[2023-06-24T23:19:24.999] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 309
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:24.999] [INFO] SQLMapperLog - param: { id_device: 309, id_language: 2 }
+[2023-06-24T23:19:25.007] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 62
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.007] [INFO] SQLMapperLog - param: { id_device: 62, id_language: 2 }
+[2023-06-24T23:19:25.014] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 59
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.014] [INFO] SQLMapperLog - param: { id_device: 59, id_language: 2 }
+[2023-06-24T23:19:25.027] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 42
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.027] [INFO] SQLMapperLog - param: { id_device: 42, id_language: 2 }
+[2023-06-24T23:19:25.036] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 41
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.036] [INFO] SQLMapperLog - param: { id_device: 41, id_language: 2 }
+[2023-06-24T23:19:25.045] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 16
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.045] [INFO] SQLMapperLog - param: { id_device: 16, id_language: 2 }
+[2023-06-24T23:19:25.053] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 15
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2023-06-24T23:19:25.053] [INFO] SQLMapperLog - param: { id_device: 15, id_language: 2 }
+[2023-06-24T23:19:25.071] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '1d188f56848f058fa67ecf73643bd28b'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2023-06-24T23:19:25.071] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  menu_order: 0,
+  sp_sunrise_sunset: null,
+  sp_dc_current_threshold: null,
+  sp_time_threshold: null,
+  sp_ratio: null,
+  enable_performance_index: 0,
+  enable_string_performance: 0,
+  enable_device_faults: 0,
+  enable_zeo_generation: 0,
+  enable_system_disconnect: 0,
+  pi_index_value: null,
+  inverter_efficiency: 0.96,
+  system_losses: 0.045,
+  temperature_coefficient: -0.47,
+  pi_sunrise_sunset: 0.5,
+  pi_time_threshold: 0.25,
+  zg_sunrise_sunset: 0.5,
+  zg_time_threshold: 0.25,
+  sd_sunrise_sunset: 0.25,
+  sd_time_threshold: 0.25,
+  max_ac_output: null,
+  panel_temperature: null,
+  poa_irradiance: null,
+  dc_size: null,
+  dc_current_string01: 0,
+  dc_current_string02: 0,
+  dc_current_string03: 0,
+  dc_current_string04: 0,
+  dc_current_string05: 0,
+  dc_current_string06: 0,
+  dc_current_string07: 0,
+  dc_current_string08: 0,
+  dc_current_string09: 0,
+  dc_current_string10: 0,
+  dc_current_string11: 0,
+  dc_current_string12: 0,
+  dc_current_string13: 0,
+  dc_current_string14: 0,
+  dc_current_string15: 0,
+  dc_current_string16: 0,
+  dc_current_string17: 0,
+  dc_current_string18: 0,
+  dc_current_string19: 0,
+  dc_current_string20: 0,
+  dc_current_string21: 0,
+  dc_current_string22: 0,
+  dc_current_string24: 0,
+  sp_type: 1,
+  pi_type: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/06/2023',
+  current_date: '2023-06-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '1d188f56848f058fa67ecf73643bd28b',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en'
+}
